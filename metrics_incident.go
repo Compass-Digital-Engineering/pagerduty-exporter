@@ -19,6 +19,26 @@ type MetricsCollectorIncident struct {
 		serviceMTTA    *prometheus.GaugeVec
 		incidentMTTR   *prometheus.GaugeVec
 		serviceMTTR    *prometheus.GaugeVec
+		// P1-specific metrics
+		incidentMTTAP1 *prometheus.GaugeVec
+		serviceMTTAP1  *prometheus.GaugeVec
+		incidentMTTRP1 *prometheus.GaugeVec
+		serviceMTTRP1  *prometheus.GaugeVec
+		// P2-specific metrics
+		incidentMTTAP2 *prometheus.GaugeVec
+		serviceMTTAP2  *prometheus.GaugeVec
+		incidentMTTRP2 *prometheus.GaugeVec
+		serviceMTTRP2  *prometheus.GaugeVec
+		// Corporate HQ metrics
+		incidentMTTACorporateHQ *prometheus.GaugeVec
+		serviceMTTACorporateHQ  *prometheus.GaugeVec
+		incidentMTTRCorporateHQ *prometheus.GaugeVec
+		serviceMTTRCorporateHQ  *prometheus.GaugeVec
+		// P1 without Corporate HQ metrics
+		incidentMTTAP1NoCorporateHQ *prometheus.GaugeVec
+		serviceMTTAP1NoCorporateHQ  *prometheus.GaugeVec
+		incidentMTTRP1NoCorporateHQ *prometheus.GaugeVec
+		serviceMTTRP1NoCorporateHQ  *prometheus.GaugeVec
 	}
 
 	teamListOpt []string
@@ -119,6 +139,238 @@ func (m *MetricsCollectorIncident) Setup(collector *collector.Collector) {
 		},
 	)
 	m.Collector.RegisterMetricList("pagerduty_service_mttr_seconds", m.prometheus.serviceMTTR, true)
+
+	// P1-specific MTTA metrics
+	m.prometheus.incidentMTTAP1 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mtta_seconds_p1",
+			Help: "PagerDuty P1 incident Mean Time To Acknowledgment in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"acknowledgerID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mtta_seconds_p1", m.prometheus.incidentMTTAP1, true)
+
+	m.prometheus.serviceMTTAP1 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mtta_seconds_p1",
+			Help: "PagerDuty service-level P1 Mean Time To Acknowledgment in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mtta_seconds_p1", m.prometheus.serviceMTTAP1, true)
+
+	// P1-specific MTTR metrics
+	m.prometheus.incidentMTTRP1 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mttr_seconds_p1",
+			Help: "PagerDuty P1 incident Mean Time To Resolution in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"resolverID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mttr_seconds_p1", m.prometheus.incidentMTTRP1, true)
+
+	m.prometheus.serviceMTTRP1 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mttr_seconds_p1",
+			Help: "PagerDuty service-level P1 Mean Time To Resolution in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mttr_seconds_p1", m.prometheus.serviceMTTRP1, true)
+
+	// P2-specific MTTA metrics
+	m.prometheus.incidentMTTAP2 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mtta_seconds_p2",
+			Help: "PagerDuty P2 incident Mean Time To Acknowledgment in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"acknowledgerID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mtta_seconds_p2", m.prometheus.incidentMTTAP2, true)
+
+	m.prometheus.serviceMTTAP2 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mtta_seconds_p2",
+			Help: "PagerDuty service-level P2 Mean Time To Acknowledgment in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mtta_seconds_p2", m.prometheus.serviceMTTAP2, true)
+
+	// P2-specific MTTR metrics
+	m.prometheus.incidentMTTRP2 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mttr_seconds_p2",
+			Help: "PagerDuty P2 incident Mean Time To Resolution in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"resolverID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mttr_seconds_p2", m.prometheus.incidentMTTRP2, true)
+
+	m.prometheus.serviceMTTRP2 = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mttr_seconds_p2",
+			Help: "PagerDuty service-level P2 Mean Time To Resolution in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mttr_seconds_p2", m.prometheus.serviceMTTRP2, true)
+
+	// Corporate HQ MTTA metrics
+	m.prometheus.incidentMTTACorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mtta_seconds_corporatehq",
+			Help: "PagerDuty Corporate HQ incident Mean Time To Acknowledgment in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"acknowledgerID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mtta_seconds_corporatehq", m.prometheus.incidentMTTACorporateHQ, true)
+
+	m.prometheus.serviceMTTACorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mtta_seconds_corporatehq",
+			Help: "PagerDuty service-level Corporate HQ Mean Time To Acknowledgment in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mtta_seconds_corporatehq", m.prometheus.serviceMTTACorporateHQ, true)
+
+	// Corporate HQ MTTR metrics
+	m.prometheus.incidentMTTRCorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mttr_seconds_corporatehq",
+			Help: "PagerDuty Corporate HQ incident Mean Time To Resolution in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"resolverID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mttr_seconds_corporatehq", m.prometheus.incidentMTTRCorporateHQ, true)
+
+	m.prometheus.serviceMTTRCorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mttr_seconds_corporatehq",
+			Help: "PagerDuty service-level Corporate HQ Mean Time To Resolution in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mttr_seconds_corporatehq", m.prometheus.serviceMTTRCorporateHQ, true)
+
+	// P1 without Corporate HQ MTTA metrics
+	m.prometheus.incidentMTTAP1NoCorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mtta_seconds_p1_no_corporatehq",
+			Help: "PagerDuty P1 (excluding Corporate HQ) incident Mean Time To Acknowledgment in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"acknowledgerID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mtta_seconds_p1_no_corporatehq", m.prometheus.incidentMTTAP1NoCorporateHQ, true)
+
+	m.prometheus.serviceMTTAP1NoCorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mtta_seconds_p1_no_corporatehq",
+			Help: "PagerDuty service-level P1 (excluding Corporate HQ) Mean Time To Acknowledgment in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mtta_seconds_p1_no_corporatehq", m.prometheus.serviceMTTAP1NoCorporateHQ, true)
+
+	// P1 without Corporate HQ MTTR metrics
+	m.prometheus.incidentMTTRP1NoCorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_incident_mttr_seconds_p1_no_corporatehq",
+			Help: "PagerDuty P1 (excluding Corporate HQ) incident Mean Time To Resolution in seconds",
+		},
+		[]string{
+			"incidentID",
+			"serviceID",
+			"serviceName",
+			"urgency",
+			"resolverID",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_incident_mttr_seconds_p1_no_corporatehq", m.prometheus.incidentMTTRP1NoCorporateHQ, true)
+
+	m.prometheus.serviceMTTRP1NoCorporateHQ = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "pagerduty_service_mttr_seconds_p1_no_corporatehq",
+			Help: "PagerDuty service-level P1 (excluding Corporate HQ) Mean Time To Resolution in seconds (rolling average)",
+		},
+		[]string{
+			"serviceID",
+			"serviceName",
+			"urgency",
+		},
+	)
+	m.Collector.RegisterMetricList("pagerduty_service_mttr_seconds_p1_no_corporatehq", m.prometheus.serviceMTTRP1NoCorporateHQ, true)
 }
 
 func (m *MetricsCollectorIncident) Reset() {
@@ -185,10 +437,50 @@ func (m *MetricsCollectorIncident) Collect(callback chan<- func()) {
 	incidentMTTRMetricList := m.Collector.GetMetricList("pagerduty_incident_mttr_seconds")
 	serviceMTTRMetricList := m.Collector.GetMetricList("pagerduty_service_mttr_seconds")
 
+	// P1-specific metric lists
+	incidentMTTAP1MetricList := m.Collector.GetMetricList("pagerduty_incident_mtta_seconds_p1")
+	serviceMTTAP1MetricList := m.Collector.GetMetricList("pagerduty_service_mtta_seconds_p1")
+	incidentMTTRP1MetricList := m.Collector.GetMetricList("pagerduty_incident_mttr_seconds_p1")
+	serviceMTTRP1MetricList := m.Collector.GetMetricList("pagerduty_service_mttr_seconds_p1")
+
+	// P2-specific metric lists
+	incidentMTTAP2MetricList := m.Collector.GetMetricList("pagerduty_incident_mtta_seconds_p2")
+	serviceMTTAP2MetricList := m.Collector.GetMetricList("pagerduty_service_mtta_seconds_p2")
+	incidentMTTRP2MetricList := m.Collector.GetMetricList("pagerduty_incident_mttr_seconds_p2")
+	serviceMTTRP2MetricList := m.Collector.GetMetricList("pagerduty_service_mttr_seconds_p2")
+
+	// Corporate HQ metric lists
+	incidentMTTACorporateHQMetricList := m.Collector.GetMetricList("pagerduty_incident_mtta_seconds_corporatehq")
+	serviceMTTACorporateHQMetricList := m.Collector.GetMetricList("pagerduty_service_mtta_seconds_corporatehq")
+	incidentMTTRCorporateHQMetricList := m.Collector.GetMetricList("pagerduty_incident_mttr_seconds_corporatehq")
+	serviceMTTRCorporateHQMetricList := m.Collector.GetMetricList("pagerduty_service_mttr_seconds_corporatehq")
+
+	// P1 without Corporate HQ metric lists
+	incidentMTTAP1NoCorporateHQMetricList := m.Collector.GetMetricList("pagerduty_incident_mtta_seconds_p1_no_corporatehq")
+	serviceMTTAP1NoCorporateHQMetricList := m.Collector.GetMetricList("pagerduty_service_mtta_seconds_p1_no_corporatehq")
+	incidentMTTRP1NoCorporateHQMetricList := m.Collector.GetMetricList("pagerduty_incident_mttr_seconds_p1_no_corporatehq")
+	serviceMTTRP1NoCorporateHQMetricList := m.Collector.GetMetricList("pagerduty_service_mttr_seconds_p1_no_corporatehq")
+
 	// Track MTTA/MTTR data per service for calculating averages
 	serviceMTTAData := make(map[string][]float64) // key: serviceID_urgency
 	serviceMTTRData := make(map[string][]float64) // key: serviceID|urgency|priority
 	serviceNames := make(map[string]string)       // cache serviceID -> serviceName
+
+	// P1-specific tracking
+	serviceMTTAP1Data := make(map[string][]float64) // key: serviceID_urgency
+	serviceMTTRP1Data := make(map[string][]float64) // key: serviceID_urgency
+
+	// P2-specific tracking
+	serviceMTTAP2Data := make(map[string][]float64) // key: serviceID_urgency
+	serviceMTTRP2Data := make(map[string][]float64) // key: serviceID_urgency
+
+	// Corporate HQ tracking
+	serviceMTTACorporateHQData := make(map[string][]float64) // key: serviceID_urgency
+	serviceMTTRCorporateHQData := make(map[string][]float64) // key: serviceID_urgency
+
+	// P1 without Corporate HQ tracking
+	serviceMTTAP1NoCorporateHQData := make(map[string][]float64) // key: serviceID_urgency
+	serviceMTTRP1NoCorporateHQData := make(map[string][]float64) // key: serviceID_urgency
 
 	for {
 		m.Logger().Debugf("fetch incidents (offset: %v, limit:%v)", listOpts.Offset, listOpts.Limit)
@@ -203,7 +495,11 @@ func (m *MetricsCollectorIncident) Collect(callback chan<- func()) {
 		for _, incident := range list.Incidents {
 			m.processIncident(incident, incidentMetricList, incidentStatusMetricList,
 				incidentMTTAMetricList, incidentMTTRMetricList,
-				serviceMTTAData, serviceMTTRData, serviceNames)
+				serviceMTTAData, serviceMTTRData, serviceNames,
+				incidentMTTAP1MetricList, incidentMTTRP1MetricList, serviceMTTAP1Data, serviceMTTRP1Data,
+				incidentMTTAP2MetricList, incidentMTTRP2MetricList, serviceMTTAP2Data, serviceMTTRP2Data,
+				incidentMTTACorporateHQMetricList, incidentMTTRCorporateHQMetricList, serviceMTTACorporateHQData, serviceMTTRCorporateHQData,
+				incidentMTTAP1NoCorporateHQMetricList, incidentMTTRP1NoCorporateHQMetricList, serviceMTTAP1NoCorporateHQData, serviceMTTRP1NoCorporateHQData)
 		}
 
 		listOpts.Offset += PagerdutyListLimit
@@ -216,7 +512,11 @@ func (m *MetricsCollectorIncident) Collect(callback chan<- func()) {
 	for _, incident := range resolvedIncidents {
 		m.processIncident(incident, incidentMetricList, incidentStatusMetricList,
 			incidentMTTAMetricList, incidentMTTRMetricList,
-			serviceMTTAData, serviceMTTRData, serviceNames)
+			serviceMTTAData, serviceMTTRData, serviceNames,
+			incidentMTTAP1MetricList, incidentMTTRP1MetricList, serviceMTTAP1Data, serviceMTTRP1Data,
+			incidentMTTAP2MetricList, incidentMTTRP2MetricList, serviceMTTAP2Data, serviceMTTRP2Data,
+			incidentMTTACorporateHQMetricList, incidentMTTRCorporateHQMetricList, serviceMTTACorporateHQData, serviceMTTRCorporateHQData,
+			incidentMTTAP1NoCorporateHQMetricList, incidentMTTRP1NoCorporateHQMetricList, serviceMTTAP1NoCorporateHQData, serviceMTTRP1NoCorporateHQData)
 	}
 
 	// Calculate and set service-level MTTA averages
@@ -276,6 +576,230 @@ func (m *MetricsCollectorIncident) Collect(callback chan<- func()) {
 			"priority":    priority,
 		}, avgMTTR)
 	}
+
+	// Calculate and set service-level P1 MTTA averages
+	for serviceKey, mttaValues := range serviceMTTAP1Data {
+		if len(mttaValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mtta := range mttaValues {
+			total += mtta
+		}
+		avgMTTA := total / float64(len(mttaValues))
+
+		serviceMTTAP1MetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTA)
+	}
+
+	// Calculate and set service-level P1 MTTR averages
+	for serviceKey, mttrValues := range serviceMTTRP1Data {
+		if len(mttrValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mttr := range mttrValues {
+			total += mttr
+		}
+		avgMTTR := total / float64(len(mttrValues))
+
+		serviceMTTRP1MetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTR)
+	}
+
+	// Calculate and set service-level P2 MTTA averages
+	for serviceKey, mttaValues := range serviceMTTAP2Data {
+		if len(mttaValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mtta := range mttaValues {
+			total += mtta
+		}
+		avgMTTA := total / float64(len(mttaValues))
+
+		serviceMTTAP2MetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTA)
+	}
+
+	// Calculate and set service-level P2 MTTR averages
+	for serviceKey, mttrValues := range serviceMTTRP2Data {
+		if len(mttrValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mttr := range mttrValues {
+			total += mttr
+		}
+		avgMTTR := total / float64(len(mttrValues))
+
+		serviceMTTRP2MetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTR)
+	}
+
+	// Calculate and set service-level Corporate HQ MTTA averages
+	for serviceKey, mttaValues := range serviceMTTACorporateHQData {
+		if len(mttaValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mtta := range mttaValues {
+			total += mtta
+		}
+		avgMTTA := total / float64(len(mttaValues))
+
+		serviceMTTACorporateHQMetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTA)
+	}
+
+	// Calculate and set service-level Corporate HQ MTTR averages
+	for serviceKey, mttrValues := range serviceMTTRCorporateHQData {
+		if len(mttrValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mttr := range mttrValues {
+			total += mttr
+		}
+		avgMTTR := total / float64(len(mttrValues))
+
+		serviceMTTRCorporateHQMetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTR)
+	}
+
+	// Calculate and set service-level P1 without Corporate HQ MTTA averages
+	for serviceKey, mttaValues := range serviceMTTAP1NoCorporateHQData {
+		if len(mttaValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mtta := range mttaValues {
+			total += mtta
+		}
+		avgMTTA := total / float64(len(mttaValues))
+
+		serviceMTTAP1NoCorporateHQMetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTA)
+	}
+
+	// Calculate and set service-level P1 without Corporate HQ MTTR averages
+	for serviceKey, mttrValues := range serviceMTTRP1NoCorporateHQData {
+		if len(mttrValues) == 0 {
+			continue
+		}
+
+		lastUnderscore := strings.LastIndex(serviceKey, "_")
+		if lastUnderscore == -1 {
+			continue
+		}
+		serviceID := serviceKey[:lastUnderscore]
+		urgency := serviceKey[lastUnderscore+1:]
+
+		serviceName := m.getCachedServiceName(serviceID, serviceNames)
+
+		var total float64
+		for _, mttr := range mttrValues {
+			total += mttr
+		}
+		avgMTTR := total / float64(len(mttrValues))
+
+		serviceMTTRP1NoCorporateHQMetricList.Add(prometheus.Labels{
+			"serviceID":   serviceID,
+			"serviceName": serviceName,
+			"urgency":     urgency,
+		}, avgMTTR)
+	}
 }
 
 func (m *MetricsCollectorIncident) processIncident(
@@ -283,6 +807,14 @@ func (m *MetricsCollectorIncident) processIncident(
 	incidentMetricList, incidentStatusMetricList, incidentMTTAMetricList, incidentMTTRMetricList *collector.MetricList,
 	serviceMTTAData, serviceMTTRData map[string][]float64,
 	serviceNames map[string]string,
+	incidentMTTAP1MetricList, incidentMTTRP1MetricList *collector.MetricList,
+	serviceMTTAP1Data, serviceMTTRP1Data map[string][]float64,
+	incidentMTTAP2MetricList, incidentMTTRP2MetricList *collector.MetricList,
+	serviceMTTAP2Data, serviceMTTRP2Data map[string][]float64,
+	incidentMTTACorporateHQMetricList, incidentMTTRCorporateHQMetricList *collector.MetricList,
+	serviceMTTACorporateHQData, serviceMTTRCorporateHQData map[string][]float64,
+	incidentMTTAP1NoCorporateHQMetricList, incidentMTTRP1NoCorporateHQMetricList *collector.MetricList,
+	serviceMTTAP1NoCorporateHQData, serviceMTTRP1NoCorporateHQData map[string][]float64,
 ) {
 	createdAt, _ := time.Parse(time.RFC3339, incident.CreatedAt)
 
@@ -343,6 +875,12 @@ func (m *MetricsCollectorIncident) processIncident(
 
 	serviceName := m.getCachedServiceName(incident.Service.ID, serviceNames)
 
+	// Determine priority
+	priority := ""
+	if incident.Priority != nil {
+		priority = incident.Priority.Name
+	}
+
 	// Calculate MTTA
 	acknowledgedAt, acknowledgerID := m.getFirstAcknowledgement(incident)
 	if !acknowledgedAt.IsZero() {
@@ -358,6 +896,55 @@ func (m *MetricsCollectorIncident) processIncident(
 
 		serviceKey := incident.Service.ID + "_" + incident.Urgency
 		serviceMTTAData[serviceKey] = append(serviceMTTAData[serviceKey], mttaSeconds)
+
+		// P1-specific MTTA
+		if priority == "P1" {
+			incidentMTTAP1MetricList.Add(prometheus.Labels{
+				"incidentID":     incident.ID,
+				"serviceID":      incident.Service.ID,
+				"serviceName":    serviceName,
+				"urgency":        incident.Urgency,
+				"acknowledgerID": acknowledgerID,
+			}, mttaSeconds)
+			serviceMTTAP1Data[serviceKey] = append(serviceMTTAP1Data[serviceKey], mttaSeconds)
+		}
+
+		// P2-specific MTTA
+		if priority == "P2" {
+			incidentMTTAP2MetricList.Add(prometheus.Labels{
+				"incidentID":     incident.ID,
+				"serviceID":      incident.Service.ID,
+				"serviceName":    serviceName,
+				"urgency":        incident.Urgency,
+				"acknowledgerID": acknowledgerID,
+			}, mttaSeconds)
+			serviceMTTAP2Data[serviceKey] = append(serviceMTTAP2Data[serviceKey], mttaSeconds)
+		}
+
+		// Corporate HQ MTTA
+		isCorporateHQ := isCorporateHQIncident(incident.Title)
+		if isCorporateHQ {
+			incidentMTTACorporateHQMetricList.Add(prometheus.Labels{
+				"incidentID":     incident.ID,
+				"serviceID":      incident.Service.ID,
+				"serviceName":    serviceName,
+				"urgency":        incident.Urgency,
+				"acknowledgerID": acknowledgerID,
+			}, mttaSeconds)
+			serviceMTTACorporateHQData[serviceKey] = append(serviceMTTACorporateHQData[serviceKey], mttaSeconds)
+		}
+
+		// P1 without Corporate HQ MTTA
+		if priority == "P1" && !isCorporateHQ {
+			incidentMTTAP1NoCorporateHQMetricList.Add(prometheus.Labels{
+				"incidentID":     incident.ID,
+				"serviceID":      incident.Service.ID,
+				"serviceName":    serviceName,
+				"urgency":        incident.Urgency,
+				"acknowledgerID": acknowledgerID,
+			}, mttaSeconds)
+			serviceMTTAP1NoCorporateHQData[serviceKey] = append(serviceMTTAP1NoCorporateHQData[serviceKey], mttaSeconds)
+		}
 	}
 
 	// Calculate MTTR for resolved incidents
@@ -367,10 +954,6 @@ func (m *MetricsCollectorIncident) processIncident(
 			mttrSeconds := resolvedAt.Sub(createdAt).Seconds()
 
 			resolverID := incident.LastStatusChangeBy.ID
-			priority := ""
-			if incident.Priority != nil {
-				priority = incident.Priority.Name
-			}
 
 			incidentMTTRMetricList.Add(prometheus.Labels{
 				"incidentID":  incident.ID,
@@ -383,6 +966,59 @@ func (m *MetricsCollectorIncident) processIncident(
 
 			serviceKey := incident.Service.ID + "|" + incident.Urgency + "|" + priority
 			serviceMTTRData[serviceKey] = append(serviceMTTRData[serviceKey], mttrSeconds)
+
+			// P1-specific MTTR
+			if priority == "P1" {
+				incidentMTTRP1MetricList.Add(prometheus.Labels{
+					"incidentID":  incident.ID,
+					"serviceID":   incident.Service.ID,
+					"serviceName": serviceName,
+					"urgency":     incident.Urgency,
+					"resolverID":  resolverID,
+				}, mttrSeconds)
+				serviceKeyP1 := incident.Service.ID + "_" + incident.Urgency
+				serviceMTTRP1Data[serviceKeyP1] = append(serviceMTTRP1Data[serviceKeyP1], mttrSeconds)
+			}
+
+			// P2-specific MTTR
+			if priority == "P2" {
+				incidentMTTRP2MetricList.Add(prometheus.Labels{
+					"incidentID":  incident.ID,
+					"serviceID":   incident.Service.ID,
+					"serviceName": serviceName,
+					"urgency":     incident.Urgency,
+					"resolverID":  resolverID,
+				}, mttrSeconds)
+				serviceKeyP2 := incident.Service.ID + "_" + incident.Urgency
+				serviceMTTRP2Data[serviceKeyP2] = append(serviceMTTRP2Data[serviceKeyP2], mttrSeconds)
+			}
+
+			// Corporate HQ MTTR
+			isCorporateHQ := isCorporateHQIncident(incident.Title)
+			if isCorporateHQ {
+				incidentMTTRCorporateHQMetricList.Add(prometheus.Labels{
+					"incidentID":  incident.ID,
+					"serviceID":   incident.Service.ID,
+					"serviceName": serviceName,
+					"urgency":     incident.Urgency,
+					"resolverID":  resolverID,
+				}, mttrSeconds)
+				serviceKeyCHQ := incident.Service.ID + "_" + incident.Urgency
+				serviceMTTRCorporateHQData[serviceKeyCHQ] = append(serviceMTTRCorporateHQData[serviceKeyCHQ], mttrSeconds)
+			}
+
+			// P1 without Corporate HQ MTTR
+			if priority == "P1" && !isCorporateHQ {
+				incidentMTTRP1NoCorporateHQMetricList.Add(prometheus.Labels{
+					"incidentID":  incident.ID,
+					"serviceID":   incident.Service.ID,
+					"serviceName": serviceName,
+					"urgency":     incident.Urgency,
+					"resolverID":  resolverID,
+				}, mttrSeconds)
+				serviceKeyP1NoCHQ := incident.Service.ID + "_" + incident.Urgency
+				serviceMTTRP1NoCorporateHQData[serviceKeyP1NoCHQ] = append(serviceMTTRP1NoCorporateHQData[serviceKeyP1NoCHQ], mttrSeconds)
+			}
 		}
 	}
 }
@@ -498,4 +1134,13 @@ func (m *MetricsCollectorIncident) getEscalationPolicySummary(incident pagerduty
 		return ""
 	}
 	return ep.Name
+}
+
+// isCorporateHQIncident checks if the incident title contains Corporate HQ keywords
+// Keywords checked (case-insensitive): "corporate hq", "24hundred", "corporatehq"
+func isCorporateHQIncident(title string) bool {
+	lowerTitle := strings.ToLower(title)
+	return strings.Contains(lowerTitle, "corporate hq") ||
+		strings.Contains(lowerTitle, "24hundred") ||
+		strings.Contains(lowerTitle, "corporatehq")
 }
